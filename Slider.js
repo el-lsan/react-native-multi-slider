@@ -9,7 +9,8 @@ var {
   PanResponder,
   View,
   ViewPropTypes,
-  TouchableHighlight
+  TouchableHighlight,
+  Platform
 } = ReactNative;
 
 var converter = require('./converter.js');
@@ -139,6 +140,12 @@ var Slider = createReactClass({
 
     var slipDisplacement = this.props.touchDimensions.slipDisplacement;
 
+    // Prevent markers overlapping
+    if (confined > this.state.positionOne &&
+      Math.abs(this.state.positionTwo - confined) < (this.props.markerStyle.width / 2 || 20)) {
+      return ;
+    }
+
     if (Math.abs(gestureState.dy) < slipDisplacement || !slipDisplacement) {
       this.setState({
         positionOne: confined
@@ -226,45 +233,45 @@ var Slider = createReactClass({
 
     return (
       <View style={[styles.container, this.props.containerStyle]}>
-        <View style={[styles.fullTrack, { width: sliderLength }]}>
-          <View style={[this.props.trackStyle, styles.track, trackOneStyle, { width: trackOneLength }]} />
-          <View style={[this.props.trackStyle, styles.track, trackTwoStyle, { width: trackTwoLength }]} />
-          { twoMarkers && (
-            <View style={[this.props.trackStyle, styles.track, trackThreeStyle, { width: trackThreeLength }]} />
-          ) }
+  <View style={[styles.fullTrack, { width: sliderLength }]}>
+  <View style={[this.props.trackStyle, styles.track, trackOneStyle, { width: trackOneLength }]} />
+    <View style={[this.props.trackStyle, styles.track, trackTwoStyle, { width: trackTwoLength }]} />
+    { twoMarkers && (
+    <View style={[this.props.trackStyle, styles.track, trackThreeStyle, { width: trackThreeLength }]} />
+    ) }
 
 
-          <View
-            style={[styles.touch, touchStyle, {left: -(trackTwoLength + trackThreeLength + width / 2)}]}
-            ref={component => this._markerOne = component}
-            {...this._panResponderOne.panHandlers}
-            >
-            <Marker
-              pressed={this.state.onePressed}
-              value={this.state.valueOne}
-              markerStyle={this.props.markerStyle}
-              pressedMarkerStyle={this.props.pressedMarkerStyle}
-              />
-          </View>
+  <View
+    style={[styles.touch, touchStyle, {left: -(trackTwoLength + trackThreeLength + width / 2)}]}
+    ref={component => this._markerOne = component}
+    {...this._panResponderOne.panHandlers}
+  >
+  <Marker
+    pressed={this.state.onePressed}
+    value={this.state.valueOne}
+    markerStyle={this.props.markerStyle}
+    pressedMarkerStyle={this.props.pressedMarkerStyle}
+    />
+    </View>
 
-          { twoMarkers && (positionOne !== this.props.sliderLength) && (
-            <View
-              style={[styles.touch, touchStyle, {left: -(trackThreeLength + width * 1.5)}]}
-              ref={component => this._markerTwo = component}
-              {...this._panResponderTwo.panHandlers}
-              >
-              <Marker
-                pressed={this.state.twoPressed}
-                value={this.state.valueOne}
-                markerStyle={this.props.markerStyle}
-                pressedMarkerStyle={this.props.pressedMarkerStyle}
-                />
-            </View>
-          ) }
-
-        </View>
+    { twoMarkers && (positionOne !== this.props.sliderLength) && (
+    <View
+      style={[styles.touch, touchStyle, {left: -(trackThreeLength + width * 1.5)}]}
+      ref={component => this._markerTwo = component}
+      {...this._panResponderTwo.panHandlers}
+    >
+    <Marker
+      pressed={this.state.twoPressed}
+      value={this.state.valueOne}
+      markerStyle={this.props.markerStyle}
+      pressedMarkerStyle={this.props.pressedMarkerStyle}
+      />
       </View>
-    );
+    ) }
+
+  </View>
+    </View>
+  );
   }
 });
 
@@ -279,7 +286,8 @@ var styles = StyleSheet.create({
     flexDirection: 'row',
   },
   track: {
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginTop: 4
   },
   touch: {
     justifyContent: 'center',
